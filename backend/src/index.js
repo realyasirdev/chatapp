@@ -12,6 +12,7 @@ import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
 import { initSocket } from "./lib/socket.js";
 import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 const httpServer = createServer(app);
@@ -36,13 +37,17 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-const __dirname = path.resolve();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  const frontendDistPath = path.join(__dirname, "../../frontend/dist");
+  console.log("🚀 Production Mode: Serving frontend from", frontendDistPath);
 
-  app.use((req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+  app.use(express.static(frontendDistPath));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
   });
 }
 
