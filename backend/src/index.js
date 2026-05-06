@@ -40,8 +40,11 @@ app.use("/api/messages", messageRoutes);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-if (process.env.NODE_ENV === "production") {
-  const frontendDistPath = path.join(__dirname, "../../frontend/dist");
+console.log("Current working directory:", process.cwd());
+console.log("NODE_ENV value:", `"${process.env.NODE_ENV}"`);
+
+if (process.env.NODE_ENV && process.env.NODE_ENV.trim() === "production") {
+  const frontendDistPath = path.resolve(__dirname, "../../frontend/dist");
   console.log("🚀 Production Mode: Serving frontend from", frontendDistPath);
 
   app.use(express.static(frontendDistPath));
@@ -49,6 +52,8 @@ if (process.env.NODE_ENV === "production") {
   app.get("*", (req, res) => {
     res.sendFile(path.join(frontendDistPath, "index.html"));
   });
+} else {
+  console.log("⚠️ Not in production mode, static files NOT served.");
 }
 
 // Start
